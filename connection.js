@@ -50,7 +50,7 @@ const runSearch = () => {
         case 'Remove Employee':
           removeEmployee();
           break;
-          
+
         case 'Update Employee Role':
           updateEmployee();
           break;
@@ -60,16 +60,16 @@ const runSearch = () => {
           break;
 
         case 'View All Roles':
-            viewRoles();
-            break;
+          viewRoles();
+          break;
 
         case 'Add Role':
-            addRole();
-            break;
-          
+          addRole();
+          break;
+
         case 'Remove Role':
-            removeRole();
-            break;
+          removeRole();
+          break;
 
         case 'Exit':
           connection.end();
@@ -83,22 +83,66 @@ const runSearch = () => {
 };
 
 const viewAllEmployees = () => {
-    inquirer
-      .prompt({
-        name: 'employee',
-        type: 'choices',
-        message: 'Here are all the employees in the database',
-      })
-      .then((answer) => {
-        const query = 'SELECT * FROM employees';
-        connection.query(query, { employee: answer.employee }, (err, res) => {
-          if (err) throw err;
-          res.forEach(({ employee }) => {
-          console.log(
-            employee
-          );
-        });
+  inquirer
+    .prompt({
+      name: 'employee',
+      type: 'choices',
+      message: 'Here are all the employees in the database:',
+    })
+    .then((answer) => {
+      const query = 'SELECT * FROM employees';
+      connection.query(query, { employee: answer.employee }, (err, res) => {
+        if (err) throw err;
+        console.table(res);
         runSearch();
       });
     });
 };
+const viewAllByDepart = () => {
+  inquirer
+    .prompt({
+      name: 'department',
+      type: 'input',
+      message: 'Which department would you like to search?',
+    })
+    .then((answer) => {
+      console.log(`You searched for "${answer.department}"`);
+      let query =
+        'SELECT departments.name AS department, employees.first_name AS first_name, employees.last_name AS last_name';
+      query +=
+        ` FROM departments INNER JOIN employees ON (departments.id = employees.role_id) WHERE departments.name = "${answer.department}"`;
+      connection.query(query, { department: answer.department }, (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        runSearch();
+      });
+    });
+};
+
+const addEmployee = () => {
+  inquirer
+    .prompt([
+      {
+      name: 'first_name',
+      message: 'Add first name of employee:',
+    },
+    { name: 'last_name',
+      message: 'Add last name of employee:',  
+    },
+    {
+      name: 'department',
+      type: 'list',
+      choices: listDepartments(),
+      message: 'Add department of employee:',
+    },
+    {
+      name: 'title',
+      message: 'Add title of employee:',
+    },
+    {
+      name: 'salary',
+      message: 'Add salary of employee:',
+    },
+  ])
+    .then((answer) => {
+      const query = 'SELECT * FROM employees';
