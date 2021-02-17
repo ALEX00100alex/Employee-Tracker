@@ -171,7 +171,6 @@ const viewRoles = () => {
     runSearch();
   });
 };
-
 const addRole = () => {
   inquirer.prompt([
     {
@@ -235,4 +234,5 @@ const addEmployee = () => {
     });
   });
 };
+
 
