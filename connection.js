@@ -123,26 +123,67 @@ const addEmployee = () => {
   inquirer
     .prompt([
       {
-      name: 'first_name',
-      message: 'Add first name of employee:',
-    },
-    { name: 'last_name',
-      message: 'Add last name of employee:',  
-    },
-    {
-      name: 'department',
-      type: 'list',
-      choices: listDepartments(),
-      message: 'Add department of employee:',
-    },
-    {
-      name: 'title',
-      message: 'Add title of employee:',
-    },
-    {
-      name: 'salary',
-      message: 'Add salary of employee:',
-    },
-  ])
+        name: 'first_name',
+        message: 'Add first name of employee:',
+      },
+      {
+        name: 'last_name',
+        message: 'Add last name of employee:',
+      },
+      {
+        name: 'department',
+        type: 'list',
+        choices: listDepartments(),
+        message: 'Add department of employee:',
+      },
+      {
+        name: 'title',
+        message: 'Add title of employee:',
+      },
+      {
+        name: 'salary',
+        message: 'Add salary of employee:',
+      },
+    ])
     .then((answer) => {
-      const query = 'SELECT * FROM employees';
+      const department_id = getIdByDept(answer.department);
+      inquirer.prompt({
+        name: 'manager',
+        type: 'list',
+        choices: getManagerbyDept(department_id),
+        message: 'Add manager of employee (if any):',
+      }).then((answer2) => {
+        const manager_id = getManagerIdByName(answer2.manager);
+        let query = `INSERT INTO roles (title, salary, department_id) VALUES ("${answer.title}", "${answer.salary}", "${department_id}")`;
+        connection.query(query, (err, res) => {
+          if (err) throw err;
+          let role_id = res.insertId;
+          let query = `INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ("${answer.first_name}", "${answer.last_name}", "${role_id}", "${manager_id}")`;
+          connection.query(query, (err, res) => {
+            if (err) throw err;
+            console.log("Employee successfully created!");
+            runSearch();
+          });
+        });
+      });
+    });
+  };
+  const listDepartments = async () => {
+   let query = 'SELECT name FROM departments';
+   try {
+      const res = await connection.query(query, (err, res) => {
+        return res; 
+      });
+      console.log(res);
+    } 
+   catch(err) {throw err;}
+  };
+  const getIdByDept = (dept) => {
+    return 10;
+  };
+  const getManagerbyDept = (dept) => {
+    return ['Mike Jones'];
+  };
+  const getManagerIdByName = (name) => {
+    return 15;
+  };
